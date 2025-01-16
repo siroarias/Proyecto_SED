@@ -18,6 +18,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "stm32f4xx_hal_adc.h"
+#include "stm32f4xx_hal_spi.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -28,7 +30,11 @@
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
+#define JOYSTICK_LEFT_THRESHOLD 1000
+#define JOYSTICK_RIGHT_THRESHOLD 3000
 /* USER CODE BEGIN PD */
+#define SEGMENT_COUNT 8
+#define DIGIT_COUNT 4
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -37,7 +43,11 @@
 
 /* Private variables ---------------------------------------------------------*/
 SPI_HandleTypeDef hspi1;
+ADC_HandleTypeDef hadc1;
 volatile uint8_t car_position = 0x08; // Posición inicial del coche
+volatile uint16_t score = 0; // Puntuación recibida
+uint8_t segment_pins[SEGMENT_COUNT] = {GPIO_PIN_0, GPIO_PIN_1, GPIO_PIN_2, GPIO_PIN_3, GPIO_PIN_4, GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_7};
+uint8_t digit_pins[DIGIT_COUNT] = {GPIO_PIN_8, GPIO_PIN_9, GPIO_PIN_10, GPIO_PIN_11};
 
 /* USER CODE BEGIN PV */
 /* USER CODE END PV */
@@ -46,7 +56,9 @@ volatile uint8_t car_position = 0x08; // Posición inicial del coche
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_ADC1_Init(void);
 void sendCarPosition(uint8_t position);
+void updateDisplay(uint16_t value);
 /* USER CODE BEGIN PFP */
 /* USER CODE END PFP */
 
@@ -60,6 +72,7 @@ void sendCarPosition(uint8_t position);
   */
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
   /* USER CODE END 1 */
 
@@ -80,6 +93,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_SPI1_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   /* USER CODE END 2 */
 
@@ -87,22 +101,35 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET) {
-      // Mover a la izquierda
-      if (car_position > 0x01) car_position >>= 1;
-      sendCarPosition(car_position);
-      HAL_Delay(200);
-    }
+	uint32_t joystick_value = 0;
+	uint8_t received_data = 0;
 
-    if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) == GPIO_PIN_SET) {
-      // Mover a la derecha
-      if (car_position < 0x08) car_position <<= 1;
-      sendCarPosition(car_position);
-      HAL_Delay(200);
-    }
-    /* USER CODE END WHILE */
+	// Inicia la conversión ADC
+	HAL_ADC_Start(&hadc1);
+	if (HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY) == HAL_OK)
+	{
+		joystick_value = HAL_ADC_GetValue(&hadc1);
+	}
+	HAL_ADC_Stop(&hadc1);
 
-    /* USER CODE BEGIN 3 */
+	// Control del coche basado en el valor del joystick
+	if (joystick_value < JOYSTICK_LEFT_THRESHOLD) {
+		if (car_position > 0x01) car_position >>= 1; // Mover a la izquierda
+	} else if (joystick_value > JOYSTICK_RIGHT_THRESHOLD) {
+		if (car_position < 0x08) car_position <<= 1; // Mover a la derecha
+	}
+
+	// Enviar y recibir datos a través de SPI
+	HAL_SPI_TransmitReceive(&hspi1, &car_position, &received_data, 1, HAL_MAX_DELAY);
+	score = received_data; // Actualiza la puntuación con el dato recibido
+
+	// Actualizar el display
+	updateDisplay(score);
+
+	HAL_Delay(200);
+	/* USER CODE END WHILE */
+
+	/* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
@@ -154,26 +181,55 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief GPIO Initialization Function
+  * @brief ADC1 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_GPIO_Init(void)
+static void MX_ADC1_Init(void)
 {
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
+  /* USER CODE BEGIN ADC1_Init 0 */
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
+  /* USER CODE END ADC1_Init 0 */
 
-  /*Configure GPIO pins : PA0 PA1 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  ADC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN ADC1_Init 1 */
+
+  /* USER CODE END ADC1_Init 1 */
+
+  /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
+  */
+  hadc1.Instance = ADC1;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
+  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc1.Init.ScanConvMode = DISABLE;
+  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc1.Init.NbrOfConversion = 1;
+  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  if (HAL_ADC_Init(&hadc1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_1;
+  sConfig.Rank = 1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC1_Init 2 */
+
+  /* USER CODE END ADC1_Init 2 */
+
 }
 
 /**
@@ -183,7 +239,15 @@ static void MX_GPIO_Init(void)
   */
 static void MX_SPI1_Init(void)
 {
-  /* SPI1 parameter configuration */
+
+  /* USER CODE BEGIN SPI1_Init 0 */
+
+  /* USER CODE END SPI1_Init 0 */
+
+  /* USER CODE BEGIN SPI1_Init 1 */
+
+  /* USER CODE END SPI1_Init 1 */
+  /* SPI1 parameter configuration*/
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_MASTER;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
@@ -191,7 +255,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -200,16 +264,91 @@ static void MX_SPI1_Init(void)
   {
     Error_Handler();
   }
+  /* USER CODE BEGIN SPI1_Init 2 */
+
+  /* USER CODE END SPI1_Init 2 */
+
 }
 
 /**
-  * @brief Send car position via SPI
-  * @param position: Position to send
+  * @brief GPIO Initialization Function
+  * @param None
   * @retval None
   */
-void sendCarPosition(uint8_t position) {
-  HAL_SPI_Transmit(&hspi1, &position, 1, HAL_MAX_DELAY);
+static void MX_GPIO_Init(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+/* USER CODE BEGIN MX_GPIO_Init_1 */
+/* USER CODE END MX_GPIO_Init_1 */
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11
+                          |GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
+                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PA0 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PD8 PD9 PD10 PD11
+                           PD0 PD1 PD2 PD3
+                           PD4 PD5 PD6 PD7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11
+                          |GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
+                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+/* USER CODE BEGIN MX_GPIO_Init_2 */
+/* USER CODE END MX_GPIO_Init_2 */
 }
+
+/**
+  * @brief Update the 7-segment display
+  * @param value: Value to display
+  * @retval None
+  */
+void updateDisplay(uint16_t value) {
+  static const uint8_t segment_map[10] = {
+    0b00111111, // 0
+    0b00000110, // 1
+    0b01011011, // 2
+    0b01001111, // 3
+    0b01100110, // 4
+    0b01101101, // 5
+    0b01111101, // 6
+    0b00000111, // 7
+    0b01111111, // 8
+    0b01101111  // 9
+  };
+
+  for (int digit = 0; digit < DIGIT_COUNT; ++digit) {
+    uint8_t digit_value = (value / (10 * digit)) % 10;
+    uint8_t segments = segment_map[digit_value];
+
+    // Update segments
+    for (int i = 0; i < SEGMENT_COUNT; ++i) {
+      HAL_GPIO_WritePin(GPIOD, segment_pins[i], (segments >> i) & 0x01);
+    }
+
+    // Activate current digit
+    HAL_GPIO_WritePin(GPIOD, digit_pins[digit], GPIO_PIN_SET);
+    HAL_Delay(1);
+    HAL_GPIO_WritePin(GPIOD, digit_pins[digit], GPIO_PIN_RESET);
+  }
+}
+
+/* USER CODE BEGIN 4 */
+
+/* USER CODE END 4 */
 
 /**
   * @brief  This function is executed in case of error occurrence.
@@ -217,8 +356,28 @@ void sendCarPosition(uint8_t position) {
   */
 void Error_Handler(void)
 {
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
   while (1)
   {
   }
+  /* USER CODE END Error_Handler_Debug */
 }
+
+#ifdef  USE_FULL_ASSERT
+/**
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
+void assert_failed(uint8_t *file, uint32_t line)
+{
+  /* USER CODE BEGIN 6 */
+  /* User can add his own implementation to report the file name and line number,
+     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* USER CODE END 6 */
+}
+#endif /* USE_FULL_ASSERT */
