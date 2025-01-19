@@ -135,6 +135,7 @@ int main(void)
 
 	// Actualizar el display
 	updateDisplay(score);
+	// updateDisplay(score/10); // para pruebas
 
 	HAL_Delay(5);
 	/* USER CODE END WHILE */
