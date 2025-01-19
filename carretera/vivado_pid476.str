@@ -156,3 +156,71 @@ dismissDialog("Open Project"); // bj (Open Project Progress)
 selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, TrafficControl(Behavioral) (coche.vhd)]", 1, false); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
 // [GUI Memory]: 147 MB (+5907kb) [00:01:12]
 selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, TrafficControl(Behavioral) (coche.vhd)]", 1, false, false, false, false, false, true); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Double Click
+// Elapsed time: 946 seconds
+selectCodeEditor("coche.vhd", 2, 17); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 246, 437); // ac (coche.vhd)
+typeControlKey((HResource) null, "coche.vhd", 'v'); // ac (coche.vhd)
+// Elapsed time: 21 seconds
+selectCodeEditor("coche.vhd", 608, 685); // ac (coche.vhd)
+// [GUI Memory]: 158 MB (+3128kb) [00:17:34]
+selectCodeEditor("coche.vhd", 460, 352); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 410, 313); // ac (coche.vhd)
+// Elapsed time: 83 seconds
+selectCodeEditor("coche.vhd", 446, 329); // ac (coche.vhd)
+// Elapsed time: 88 seconds
+selectCodeEditor("coche.vhd", 262, 814); // ac (coche.vhd)
+typeControlKey((HResource) null, "coche.vhd", 'v'); // ac (coche.vhd)
+// Elapsed time: 25 seconds
+selectCodeEditor("coche.vhd", 1272, 304); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1217, 277); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1198, 253); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1334, 228); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1170, 184); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1252, 158); // ac (coche.vhd)
+// Elapsed time: 55 seconds
+selectCodeEditor("coche.vhd", 1016, 163); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 920, 337); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 920, 337); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 741, 368); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 892, 388); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 922, 365); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 927, 360); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 947, 333); // ac (coche.vhd)
+// Elapsed time: 20 seconds
+selectCodeEditor("coche.vhd", 658, 240); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 838, 613); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1391, 159); // ac (coche.vhd)
+// Elapsed time: 16 seconds
+selectCodeEditor("coche.vhd", 1387, 209); // ac (coche.vhd)
+// Elapsed time: 102 seconds
+selectCodeEditor("coche.vhd", 163, 787); // ac (coche.vhd)
+typeControlKey((HResource) null, "coche.vhd", 'v'); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 822, 401); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 801, 331); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 982, 330); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1016, 377); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1016, 377); // ac (coche.vhd)
+typeControlKey(null, null, 'z');
+selectCodeEditor("coche.vhd", 1029, 361); // ac (coche.vhd)
+// Elapsed time: 25 seconds
+selectCodeEditor("coche.vhd", 1305, 700); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1261, 667); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1253, 648); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1259, 620); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 925, 390); // ac (coche.vhd)
+// Elapsed time: 26 seconds
+selectCodeEditor("coche.vhd", 876, 497); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 855, 454); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 810, 424); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1414, 457); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1232, 481); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1058, 587); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1029, 655); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 969, 565); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1190, 609); // ac (coche.vhd)
+selectCodeEditor("coche.vhd", 1221, 586); // ac (coche.vhd)
+selectButton(RDIResourceCommand.RDICommands_SAVE_FILE, (String) null); // B (RDIResourceCommand.RDICommands_SAVE_FILE)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Elapsed Time for: 'L.f': 26m:32s
+// Elapsed Time for: 'L.f': 26m:34s
