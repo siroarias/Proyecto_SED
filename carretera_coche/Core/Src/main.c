@@ -31,7 +31,7 @@
 
 /* Private define ------------------------------------------------------------*/
 #define JOYSTICK_LEFT_THRESHOLD 1000
-#define JOYSTICK_RIGHT_THRESHOLD 3000
+#define JOYSTICK_RIGHT_THRESHOLD 3500
 /* USER CODE BEGIN PD */
 #define SEGMENT_COUNT 8
 #define DIGIT_COUNT 4
@@ -46,8 +46,15 @@ SPI_HandleTypeDef hspi1;
 ADC_HandleTypeDef hadc1;
 volatile uint8_t car_position = 0x08; // Posición inicial del coche
 volatile uint16_t score = 0; // Puntuación recibida
-uint8_t segment_pins[SEGMENT_COUNT] = {GPIO_PIN_0, GPIO_PIN_1, GPIO_PIN_2, GPIO_PIN_3, GPIO_PIN_4, GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_7};
-uint8_t digit_pins[DIGIT_COUNT] = {GPIO_PIN_8, GPIO_PIN_9, GPIO_PIN_10, GPIO_PIN_11};
+uint16_t segment_pins[SEGMENT_COUNT] = {GPIO_PIN_0, GPIO_PIN_1, GPIO_PIN_2, GPIO_PIN_3, GPIO_PIN_4, GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_7};
+uint16_t digit_pins[DIGIT_COUNT];
+
+void init_digit_pins() {
+    digit_pins[0] = GPIO_PIN_11;
+    digit_pins[1] = GPIO_PIN_10;
+    digit_pins[2] = GPIO_PIN_9;
+    digit_pins[3] = GPIO_PIN_8;
+}
 
 /* USER CODE BEGIN PV */
 /* USER CODE END PV */
@@ -99,6 +106,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  init_digit_pins();
   while (1)
   {
 	uint32_t joystick_value = 0;
@@ -115,18 +123,20 @@ int main(void)
 	// Control del coche basado en el valor del joystick
 	if (joystick_value < JOYSTICK_LEFT_THRESHOLD) {
 		if (car_position > 0x01) car_position >>= 1; // Mover a la izquierda
+		// if (score > 0) score = score - 1; // para pruebas de display
 	} else if (joystick_value > JOYSTICK_RIGHT_THRESHOLD) {
 		if (car_position < 0x08) car_position <<= 1; // Mover a la derecha
+		// score = score + 1; // para pruebas de display
 	}
 
 	// Enviar y recibir datos a través de SPI
 	HAL_SPI_TransmitReceive(&hspi1, &car_position, &received_data, 1, HAL_MAX_DELAY);
-	score = received_data; // Actualiza la puntuación con el dato recibido
+	score = received_data; // Actualiza la puntuación con el dato recibido (comentar para pruebas de display)
 
 	// Actualizar el display
 	updateDisplay(score);
 
-	HAL_Delay(200);
+	HAL_Delay(5);
 	/* USER CODE END WHILE */
 
 	/* USER CODE BEGIN 3 */
@@ -317,34 +327,58 @@ static void MX_GPIO_Init(void)
   * @retval None
   */
 void updateDisplay(uint16_t value) {
-  static const uint8_t segment_map[10] = {
-    0b00111111, // 0
-    0b00000110, // 1
-    0b01011011, // 2
-    0b01001111, // 3
-    0b01100110, // 4
-    0b01101101, // 5
-    0b01111101, // 6
-    0b00000111, // 7
-    0b01111111, // 8
-    0b01101111  // 9
-  };
+    static const uint8_t segment_map[10] = {
+        0b00111111, // 0
+        0b00000110, // 1
+        0b01011011, // 2
+        0b01001111, // 3
+        0b01100110, // 4
+        0b01101101, // 5
+        0b01111101, // 6
+        0b00000111, // 7
+        0b01111111, // 8
+        0b01101111  // 9
+    };
 
-  for (int digit = 0; digit < DIGIT_COUNT; ++digit) {
-    uint8_t digit_value = (value / (10 * digit)) % 10;
-    uint8_t segments = segment_map[digit_value];
+    uint8_t leading_zero = 1; // Para controlar los ceros a la izquierda
 
-    // Update segments
-    for (int i = 0; i < SEGMENT_COUNT; ++i) {
-      HAL_GPIO_WritePin(GPIOD, segment_pins[i], (segments >> i) & 0x01);
+    for (int digit = DIGIT_COUNT - 1; digit >= 0; --digit) {
+        // Apagar todos los dígitos antes de actualizar los segmentos
+        for (int i = 0; i < DIGIT_COUNT; ++i) {
+            HAL_GPIO_WritePin(GPIOD, digit_pins[i], GPIO_PIN_SET);
+        }
+
+        // Calcular el valor del dígito actual
+        uint16_t divisor = 1;
+        for (int i = 0; i < digit; ++i) {
+            divisor *= 10;
+        }
+
+        uint8_t digit_value = (value / divisor) % 10;
+
+        if (digit_value != 0 || digit == 0 || !leading_zero) {
+            leading_zero = 0; // No más ceros a la izquierda
+            uint8_t segments = segment_map[digit_value];
+
+            // Configurar los segmentos para el dígito actual
+            for (int i = 0; i < SEGMENT_COUNT; ++i) {
+                HAL_GPIO_WritePin(GPIOD, segment_pins[i], (segments >> i) & 0x01);
+            }
+        } else {
+            // Apagar todos los segmentos si es un cero irrelevante
+            for (int i = 0; i < SEGMENT_COUNT; ++i) {
+                HAL_GPIO_WritePin(GPIOD, segment_pins[i], GPIO_PIN_RESET);
+            }
+        }
+
+        // Activar el dígito actual
+        HAL_GPIO_WritePin(GPIOD, digit_pins[digit], GPIO_PIN_RESET);
+
+        // Pausa para visualizar el dígito actual
+        HAL_Delay(1);
     }
-
-    // Activate current digit
-    HAL_GPIO_WritePin(GPIOD, digit_pins[digit], GPIO_PIN_SET);
-    HAL_Delay(1);
-    HAL_GPIO_WritePin(GPIOD, digit_pins[digit], GPIO_PIN_RESET);
-  }
 }
+
 
 /* USER CODE BEGIN 4 */
 
@@ -378,6 +412,10 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* USER CODE END 6 */
+}
+#endif /* USE_FULL_ASSERT */
+
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
