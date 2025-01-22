@@ -60,8 +60,8 @@ all: main-build
 main-build: carretera_coche.elf secondary-outputs
 
 # Tool invocations
-carretera_coche.elf carretera_coche.map: $(OBJS) $(USER_OBJS) C:\Users\Rafa\Desktop\proyecto_siro\carretera_coche\STM32F411VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "carretera_coche.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Rafa\Desktop\proyecto_siro\carretera_coche\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="carretera_coche.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+carretera_coche.elf carretera_coche.map: $(OBJS) $(USER_OBJS) C:\Users\SIRO\Desktop\repositorios_stm32\Proyecto_SED\carretera_coche\STM32F411VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "carretera_coche.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\SIRO\Desktop\repositorios_stm32\Proyecto_SED\carretera_coche\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="carretera_coche.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

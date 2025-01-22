@@ -1,8 +1,8 @@
 ../Core/Src/main.c:52:6:init_digit_pins	1
 ../Core/Src/main.c:80:5:main	6
-../Core/Src/main.c:151:6:SystemClock_Config	3
-../Core/Src/main.c:198:13:MX_ADC1_Init	3
-../Core/Src/main.c:250:13:MX_SPI1_Init	2
-../Core/Src/main.c:288:13:MX_GPIO_Init	1
-../Core/Src/main.c:329:6:updateDisplay	9
-../Core/Src/main.c:391:6:Error_Handler	1
+../Core/Src/main.c:154:6:SystemClock_Config	3
+../Core/Src/main.c:201:13:MX_ADC1_Init	3
+../Core/Src/main.c:253:13:MX_SPI1_Init	2
+../Core/Src/main.c:291:13:MX_GPIO_Init	1
+../Core/Src/main.c:332:6:updateDisplay	9
+../Core/Src/main.c:394:6:Error_Handler	1

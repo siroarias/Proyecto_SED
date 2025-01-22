@@ -24,3 +24,175 @@
 start_gui
 open_project C:/Users/SIRO/Desktop/repositorios_stm32/Proyecto_SED/carretera/carretera.xpr
 update_compile_order -fileset sources_1
+synth_design -top TrafficControl -part xc7a100tcsg324-1 -lint 
+synth_design -rtl -rtl_skip_mlo -name rtl_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1
+synth_design -top TrafficControl -part xc7a100tcsg324-1 -lint 
+refresh_design
+synth_design -top TrafficControl -part xc7a100tcsg324-1 -lint 
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+set_property IOSTANDARD LVCMOS33 [get_ports [list {leds[3]} {leds[2]} {leds[1]} {leds[0]}]]
+set_property IOSTANDARD LVCMOS33 [get_ports [list {road_pattern[7]} {road_pattern[6]} {road_pattern[5]} {road_pattern[4]} {road_pattern[3]} {road_pattern[2]} {road_pattern[1]} {road_pattern[0]}]]
+file mkdir C:/Users/SIRO/Desktop/repositorios_stm32/Proyecto_SED/carretera/carretera.srcs/constrs_1/new
+close [ open C:/Users/SIRO/Desktop/repositorios_stm32/Proyecto_SED/carretera/carretera.srcs/constrs_1/new/trabajo.xdc w ]
+add_files -fileset constrs_1 C:/Users/SIRO/Desktop/repositorios_stm32/Proyecto_SED/carretera/carretera.srcs/constrs_1/new/trabajo.xdc
+set_property target_constrs_file C:/Users/SIRO/Desktop/repositorios_stm32/Proyecto_SED/carretera/carretera.srcs/constrs_1/new/trabajo.xdc [current_fileset -constrset]
+save_constraints -force
+reset_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1
+export_ip_user_files -of_objects  [get_files C:/Users/SIRO/Desktop/repositorios_stm32/Proyecto_SED/carretera/carretera.srcs/constrs_1/new/trabajo.xdc] -no_script -reset -force -quiet
+remove_files  -fileset constrs_1 C:/Users/SIRO/Desktop/repositorios_stm32/Proyecto_SED/carretera/carretera.srcs/constrs_1/new/trabajo.xdc
+synth_design -top TrafficControl -part xc7a100tcsg324-1 -lint 
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+set_property IOSTANDARD LVCMOS33 [get_ports [list clk]]
+set_property IOSTANDARD LVCMOS33 [get_ports [list reset]]
+set_property IOSTANDARD LVCMOS33 [get_ports [list spi_clk]]
+set_property IOSTANDARD LVCMOS33 [get_ports [list spi_cs]]
+reset_run synth_1
+set_property target_constrs_file C:/Users/SIRO/Desktop/repositorios_stm32/Proyecto_SED/carretera/carretera.srcs/constrs_1/imports/Xilinx/Nexys-4-DDR-Master.xdc [current_fileset -constrset]
+save_constraints -force
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1
+synth_design -top TrafficControl -part xc7a100tcsg324-1 -lint 
+synth_design -top TrafficControl -part xc7a100tcsg324-1 -lint 
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1
+synth_design -top TrafficControl -part xc7a100tcsg324-1 -lint 
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+place_ports {road_pattern[7]} H15
+place_ports {road_pattern[6]} U13
+place_ports {road_pattern[5]} T9
+place_ports {road_pattern[4]} J18
+place_ports {road_pattern[3]} J17
+place_ports {road_pattern[2]} L18
+place_ports clk C17
+set_property package_pin "" [get_ports [list  clk]]
+place_ports spi_cs G17
+place_ports spi_clk C17
+place_ports spi_mosi E18
+place_ports clk E3
+refresh_design
+set_property IOSTANDARD LVCMOS33 [get_ports [list {leds[3]} {leds[2]} {leds[1]} {leds[0]}]]
+place_ports {leds[3]} N14
+place_ports {leds[2]} J13
+place_ports {leds[1]} K15
+place_ports {leds[0]} H17
+set_property IOSTANDARD LVCMOS33 [get_ports [list reset]]
+place_ports reset C12
+save_constraints
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1
+open_hw_manager
+connect_hw_server -allow_non_jtag
+open_hw_target
+set_property PROGRAM.FILE {C:/Users/SIRO/Desktop/repositorios_stm32/Proyecto_SED/carretera/carretera.runs/impl_1/TrafficControl.bit} [get_hw_devices xc7a100t_0]
+current_hw_device [get_hw_devices xc7a100t_0]
+refresh_hw_device -update_hw_probes false [lindex [get_hw_devices xc7a100t_0] 0]
+reset_run impl_1 -prev_step 
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1
+open_run impl_1
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+reset_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1
+set_property PROBES.FILE {} [get_hw_devices xc7a100t_0]
+set_property FULL_PROBES.FILE {} [get_hw_devices xc7a100t_0]
+set_property PROGRAM.FILE {C:/Users/SIRO/Desktop/repositorios_stm32/Proyecto_SED/carretera/carretera.runs/impl_1/TrafficControl.bit} [get_hw_devices xc7a100t_0]
+program_hw_devices [get_hw_devices xc7a100t_0]
+refresh_hw_device [lindex [get_hw_devices xc7a100t_0] 0]
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+synth_design -top TrafficControl -part xc7a100tcsg324-1 -lint 
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1
+close_hw_manager
+synth_design -top TrafficControl -part xc7a100tcsg324-1 -lint 
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+launch_runs impl_1 -jobs 8
+wait_on_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1

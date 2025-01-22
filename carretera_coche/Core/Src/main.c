@@ -122,11 +122,13 @@ int main(void)
 
 	// Control del coche basado en el valor del joystick
 	if (joystick_value < JOYSTICK_LEFT_THRESHOLD) {
-		if (car_position > 0x01) car_position >>= 1; // Mover a la izquierda
-		// if (score > 0) score = score - 1; // para pruebas de display
+		if (car_position > 0x01) car_position = 1; // Mover a la izquierda
+		//if (score > 0) score = score - 1; // para pruebas de display
 	} else if (joystick_value > JOYSTICK_RIGHT_THRESHOLD) {
-		if (car_position < 0x08) car_position <<= 1; // Mover a la derecha
-		// score = score + 1; // para pruebas de display
+		if (car_position < 0x08) car_position = 2; // Mover a la derecha
+		//score = score + 1; // para pruebas de display
+	} else {
+		car_position=0;
 	}
 
 	// Enviar y recibir datos a través de SPI
@@ -135,7 +137,7 @@ int main(void)
 
 	// Actualizar el display
 	updateDisplay(score);
-	// updateDisplay(score/10); // para pruebas
+	 //updateDisplay(score/10); // para pruebas
 
 	HAL_Delay(5);
 	/* USER CODE END WHILE */
